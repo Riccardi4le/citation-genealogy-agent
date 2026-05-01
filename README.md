@@ -1,12 +1,13 @@
 ---
-title: Citation Genealogy Agent
-emoji: 📚
-colorFrom: blue
-colorTo: purple
+title: CG Agent
+emoji: 🔥
+colorFrom: indigo
+colorTo: pink
 sdk: docker
 app_port: 7860
 pinned: false
 license: mit
+short_description: 'An agent that traces a claim''s citation chain backwards '
 ---
 
 # Citation Genealogy Agent
