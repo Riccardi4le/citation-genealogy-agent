@@ -5,7 +5,11 @@ import json
 import os
 from groq import Groq
 
-_MODEL = os.getenv("LLM_MODEL", "llama-3.3-70b-versatile")
+_MODEL = os.getenv("LLM_MODEL", "openai/gpt-oss-120b")
+
+# gpt-oss models reason before answering, and reasoning tokens count against
+# max_tokens — reserve headroom so the JSON answer is never truncated.
+_REASONING_HEADROOM = 2048
 
 _SYSTEM = """You are an expert scientific citation analyst. Your tasks:
 1. Locate specific claims in academic paper abstracts
@@ -20,7 +24,8 @@ def _client() -> Groq:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError("GROQ_API_KEY not set — add it to your .env file")
-    return Groq(api_key=api_key)
+    # Free tier has tight per-minute token limits: let the SDK back off on 429s.
+    return Groq(api_key=api_key, max_retries=6)
 
 
 def _extract_json(text: str) -> dict:
@@ -99,10 +104,11 @@ Respond ONLY with this JSON (no markdown fences, no extra text):
             {"role": "system", "content": _SYSTEM},
             {"role": "user", "content": prompt},
         ],
-        max_tokens=768,
+        max_tokens=768 + _REASONING_HEADROOM,
+        extra_body={"reasoning_effort": "medium"},
     )
 
-    result = _extract_json(response.choices[0].message.content)
+    result = _extract_json(response.choices[0].message.content or "")
     if not result:
         return {
             "claim_found": False,
