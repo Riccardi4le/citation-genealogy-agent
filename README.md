@@ -16,6 +16,8 @@ Traces the genealogy of a claim through its citation chain to find the primary s
 
 Built with **LangGraph** + **Groq** + **FastAPI**.
 
+**Live demo:** https://riccardi4le-paper-verifier-suite.hf.space/cg/ — part of the [Paper Verifier Suite](https://github.com/Riccardi4le/paper-verifier-suite)
+
 ## Run locally
 
 ```bash
